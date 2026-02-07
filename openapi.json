@@ -30,6 +30,25 @@
       }
     },
     "/health": {
+      "get": {
+        "operationId": "HealthController_index",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthPaginationDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Health"
+        ]
+      },
       "post": {
         "operationId": "HealthController_create",
         "parameters": [],
@@ -68,6 +87,29 @@
   ],
   "components": {
     "schemas": {
+      "PaginationMeta": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "limit": {
+            "type": "number"
+          },
+          "totalPage": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "total",
+          "page",
+          "limit",
+          "totalPage"
+        ]
+      },
       "HealthDto": {
         "type": "object",
         "properties": {
@@ -78,6 +120,24 @@
         },
         "required": [
           "test"
+        ]
+      },
+      "HealthPaginationDto": {
+        "type": "object",
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/PaginationMeta"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HealthDto"
+            }
+          }
+        },
+        "required": [
+          "meta",
+          "items"
         ]
       }
     }
