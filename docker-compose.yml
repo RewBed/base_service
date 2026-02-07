@@ -30,8 +30,8 @@ services:
     env_file:
       - .env
     ports:
-      - "${SERVICE_PORT}:3000"
-      - "${GRPC_PORT}:50051"
+      - "${SERVICE_PORT}:${SERVICE_PORT}"
+      - "${GRPC_PORT}:${GRPC_PORT}"
     depends_on:
       postgres:
         condition: service_healthy

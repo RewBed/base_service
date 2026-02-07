@@ -4,13 +4,16 @@ import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { join } from 'path';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { createGlobalValidationPipe } from './common/pipes/global-validation.pipe';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule, {
         bufferLogs: true,
     });
 
-      // Подключаем глобальный валидатор
+    const configService = app.get(ConfigService);
+
+    // Подключаем глобальный валидатор
     app.useGlobalPipes(createGlobalValidationPipe());
 
     app.enableShutdownHooks();
@@ -20,7 +23,7 @@ async function bootstrap() {
         options: {
             package: 'health',
             protoPath: join(process.cwd(), 'grpc/proto/health.proto'),
-            url: `0.0.0.0:50051`,
+            url: `0.0.0.0:${configService.get<number>('GRPC_PORT')}`,
         },
     });
 
@@ -29,7 +32,7 @@ async function bootstrap() {
         .setTitle('Base Service API')
         .setDescription('REST API + GRPC endpoints')
         .setVersion('1.0')
-        .addServer('http://localhost:3000') // для dev
+        .addServer(`http://localhost:${configService.get<number>('SERVICE_PORT')}`) // для dev
         .build();
 
     const document = SwaggerModule.createDocument(app, config);
@@ -41,6 +44,6 @@ async function bootstrap() {
 
     app.startAllMicroservices();  
 
-    await app.listen(3000);
+    await app.listen(configService.get<number>('SERVICE_PORT') || 3000);
 }
 bootstrap();
