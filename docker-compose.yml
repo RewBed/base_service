@@ -12,7 +12,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - "${POSTGRES_PORT}:5432"
+      - "${NAT_POSTGRES_PORT}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql
     healthcheck:
@@ -20,6 +20,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - shop-net-v1
 
   app:
     build:
@@ -37,6 +39,20 @@ services:
         condition: service_healthy
     command: >
       sh -c "npx prisma migrate deploy && node dist/src/main.js"
+    environment:
+      - VIRTUAL_HOST=${AUTO_SSL_VIRTUAL_HOST}
+      - LETSENCRYPT_HOST=${AUTO_SSL_LETSENCRYPT_HOST}
+      - LETSENCRYPT_EMAIL=${AUTO_SSL_LETSENCRYPT_EMAIL}
+      - VIRTUAL_PORT=${AUTO_SSL_VIRTUAL_PORT}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - shop-net-v1
 
 volumes:
   postgres_data:
+
+networks:
+  shop-net-v1:
+    name: shop-net-v1
+    driver: bridge
